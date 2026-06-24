@@ -1,23 +1,23 @@
 import streamlit as st
 import pickle
 
-# ======================
+# ==========================
 # PAGE CONFIG
-# ======================
+# ==========================
 st.set_page_config(
-    page_title="Spam Detection Dashboard",
+    page_title="Spam Detection Dashboard By Adhitya Prahma",
     page_icon="📩",
     layout="centered"
 )
 
-# ======================
+# ==========================
 # CUSTOM CSS
-# ======================
+# ==========================
 st.markdown("""
 <style>
 
 .main {
-    background-color: #f8fafc;
+    background-color: #f4f8ff;
 }
 
 .block-container {
@@ -28,114 +28,125 @@ st.markdown("""
 .title {
     text-align: center;
     font-size: 42px;
-    font-weight: bold;
-    color: #111827;
+    font-weight: 700;
+    color: #2563eb;
 }
 
 .subtitle {
     text-align: center;
-    color: #6b7280;
+    color: #64748b;
     margin-bottom: 25px;
 }
 
 .card {
-    background-color: white;
+    background: white;
     padding: 25px;
-    border-radius: 18px;
-    box-shadow: 0px 4px 15px rgba(0,0,0,0.08);
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(37,99,235,0.08);
 }
 
 .result-spam {
-    background: linear-gradient(135deg,#ef4444,#dc2626);
-    color:white;
-    padding:20px;
-    border-radius:15px;
-    text-align:center;
+    background: #fff1f2;
+    border-left: 8px solid #ef4444;
+    padding: 20px;
+    border-radius: 15px;
+    margin-top: 20px;
 }
 
 .result-ham {
-    background: linear-gradient(135deg,#22c55e,#16a34a);
-    color:white;
-    padding:20px;
-    border-radius:15px;
-    text-align:center;
+    background: #ecfdf5;
+    border-left: 8px solid #22c55e;
+    padding: 20px;
+    border-radius: 15px;
+    margin-top: 20px;
 }
 
-.metric {
-    font-size:30px;
-    font-weight:bold;
+.metric-value {
+    font-size: 36px;
+    font-weight: bold;
 }
 
 .footer {
     text-align:center;
-    color:gray;
+    color:#94a3b8;
     margin-top:30px;
+}
+
+.stButton button {
+    background-color: #2563eb;
+    color: white;
+    border-radius: 12px;
+    height: 50px;
+    font-weight: bold;
+    border: none;
+    width: 100%;
+}
+
+.stButton button:hover {
+    background-color: #1d4ed8;
+    color: white;
 }
 
 </style>
 """, unsafe_allow_html=True)
 
-# ======================
+# ==========================
 # LOAD MODEL
-# ======================
+# ==========================
 model = pickle.load(open("model.pkl", "rb"))
 vectorizer = pickle.load(open("vectorizer.pkl", "rb"))
 
-# ======================
+# ==========================
 # HEADER
-# ======================
-st.markdown(
-    '<div class="title">📩 Spam Message Detection</div>',
-    unsafe_allow_html=True
-)
+# ==========================
+st.markdown("""
+<div class='title'>
+📩 Spam Detection Dashboard
+</div>
 
-st.markdown(
-    '<div class="subtitle">Machine Learning Deployment using Naive Bayes</div>',
-    unsafe_allow_html=True
-)
+<div class='subtitle'>
+Deteksi Pesan Spam Menggunakan Algoritma Naive Bayes
+</div>
+""", unsafe_allow_html=True)
 
-# ======================
+# ==========================
 # INPUT CARD
-# ======================
-st.markdown('<div class="card">', unsafe_allow_html=True)
+# ==========================
+st.markdown("<div class='card'>", unsafe_allow_html=True)
 
 pesan = st.text_area(
-    "Input Message",
+    "Masukkan Pesan",
     height=180,
-    placeholder="Type or paste a message here..."
+    placeholder="Contoh: Congratulations! You have won a free iPhone. Click here now..."
 )
 
-deteksi = st.button(
-    "🔍 Analyze Message",
-    use_container_width=True
-)
+deteksi = st.button("🔍 Analisis Pesan")
 
-st.markdown('</div>', unsafe_allow_html=True)
+st.markdown("</div>", unsafe_allow_html=True)
 
-# ======================
-# PREDICTION
-# ======================
+# ==========================
+# PREDIKSI
+# ==========================
 if deteksi:
 
     if pesan.strip() == "":
-        st.warning("Please enter a message first.")
+        st.warning("Silakan masukkan pesan terlebih dahulu.")
     else:
 
-        X = vectorizer.transform([pesan])
+        data = vectorizer.transform([pesan])
 
-        pred = model.predict(X)[0]
-        prob = model.predict_proba(X)[0]
+        prediksi = model.predict(data)[0]
 
-        confidence = max(prob) * 100
+        probabilitas = model.predict_proba(data)[0]
 
-        st.markdown("<br>", unsafe_allow_html=True)
+        confidence = max(probabilitas) * 100
 
-        if pred == 1:
+        if prediksi == 1:
 
             st.markdown(f"""
             <div class="result-spam">
                 <h2>🚨 SPAM DETECTED</h2>
-                <div class="metric">{confidence:.2f}%</div>
+                <div class="metric-value">{confidence:.2f}%</div>
                 <p>Confidence Score</p>
             </div>
             """, unsafe_allow_html=True)
@@ -144,36 +155,34 @@ if deteksi:
 
             st.markdown(f"""
             <div class="result-ham">
-                <h2>✅ NOT SPAM</h2>
-                <div class="metric">{confidence:.2f}%</div>
+                <h2>✅ SAFE MESSAGE</h2>
+                <div class="metric-value">{confidence:.2f}%</div>
                 <p>Confidence Score</p>
             </div>
             """, unsafe_allow_html=True)
 
-        st.markdown("<br>", unsafe_allow_html=True)
+        st.write("")
 
         col1, col2 = st.columns(2)
 
         with col1:
             st.metric(
                 "Spam Probability",
-                f"{prob[1]*100:.2f}%"
+                f"{probabilitas[1] * 100:.2f}%"
             )
 
         with col2:
             st.metric(
                 "Not Spam Probability",
-                f"{prob[0]*100:.2f}%"
+                f"{probabilitas[0] * 100:.2f}%"
             )
 
-# ======================
+# ==========================
 # FOOTER
-# ======================
-st.markdown(
-    """
-    <div class="footer">
-        Universitas Nusa Putra • Machine Learning • Deployment with Streamlit
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+# ==========================
+st.markdown("""
+<div class='footer'>
+Machine Learning Deployment • Naive Bayes Spam Detection<br>
+Universitas Nusa Putra
+</div>
+""", unsafe_allow_html=True)
