@@ -5,7 +5,7 @@ import pickle
 # PAGE CONFIG
 # ======================
 st.set_page_config(
-    page_title="Spam Detection Dashboard By Adhitya Prahma",
+    page_title="Spam Detection Dashboard",
     page_icon="📩",
     layout="centered"
 )
@@ -172,7 +172,7 @@ if deteksi:
 st.markdown(
     """
     <div class="footer">
-        Universitas Nusa Putra • Machine Learning • Deployment with Streamlit
+        Universitas Nusa Putra • Machine Learning • Adhitya Prahma
     </div>
     """,
     unsafe_allow_html=True
